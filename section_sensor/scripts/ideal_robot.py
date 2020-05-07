@@ -171,13 +171,12 @@ class IdealCamera:
 
         return self.distance_range[0] <= polarpos[0] <= self.distance_range[1] and self.direction_range[0] <= polarpos[1] <= self.direction_range[1]
 
-
     def data(self,cam_pose):
         observed = []
         for lm in self.map.landmarks:
             z = self.observation_function(cam_pose,lm.pos) # 関数h
-            if self.visible(z):
-                observed.append((z,lm.id))
+            if self.visible(z): # もし、センサ範囲にオブジェクトがあれば
+                observed.append((z,lm.id)) # 距離と相対角度を保存
 
         self.lastdata = observed
         return observed
@@ -192,7 +191,7 @@ class IdealCamera:
         while phi >= np.pi: phi -= 2 * np.pi # -π~πに収まるように正規化
         while phi < -np.pi: phi += 2 * np.pi
 
-        return np.array([np.hypot(*diff),phi]).T
+        return np.array([np.hypot(*diff),phi]).T # 距離と相対角度を返す
 
     def draw(self,ax,elems,cam_pose):
         for lm in self.lastdata:
