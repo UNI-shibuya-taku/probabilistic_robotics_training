@@ -42,23 +42,23 @@ class World:
             for i in range(1000):self.one_step(i,elems,ax) # デバッグ時にアニメーションをさせない
         else:
             # FuncAnimation内をupdate
+            # self.onestepは引数が３つなので、二つ目以降はfargsで示す
             self.ani = anm.FuncAnimation(fig,self.one_step,fargs = (elems,ax),
                                          frames = int(self.time_span / self.time_interval)+1,
                                          interval = int(self.time_interval * 1000),repeat = False)
             plt.show()
 
+    # FuncAnimationで使うコールバック関数なので、最低一つは引数が必要
     def one_step(self,i,elems,ax):
         while elems: elems.pop().remove() # 二重で描かれないように
-        time_str = "t= %.2f[s]" % (self.time_interval * i)
-        elems.append(ax.text(-4.4,4.5,time_str,fontsize = 10))
-        for obj in self.objects:
+        time_str = "t= %.2f[s]" % (self.time_interval * i) # 経過時間
+        elems.append(ax.text(-4.4,4.5,time_str,fontsize = 10)) # 経過時間をどこに表示するか設定
+        for obj in self.objects: # objectsはIdealRobot
             obj.draw(ax,elems) # class IdealRobotで描く
-            if hasattr(obj,"one_step"): obj.one_step(self.time_interval)
+            if hasattr(obj,"one_step"): obj.one_step(self.time_interval) # 姿勢の更新
             # obj.one_stepはIdealRobotのonestep
 
-
 # In[3]:
-
 
 class IdealRobot:
 
@@ -85,10 +85,10 @@ class IdealRobot:
         self.poses.append(self.pose) # ロボットの位置情報をappend
         elems += ax.plot([e[0] for e in self.poses],[e[1] for e in self.poses],linewidth = 0.5,color = "black")
 
-        if self.sensor:
+        if self.sensor: # センサがあれば
             self.sensor.draw(ax,elems,self.poses[-2])
 
-        if self.agent and hasattr(self.agent,"draw"):
+        if self.agent and hasattr(self.agent,"draw"): # circling,straight
             self.agent.draw(ax,elems)
 
     # 移動後の状態を返す
@@ -106,7 +106,7 @@ class IdealRobot:
     def one_step(self,time_interval):
         if not self.agent: return #self.agentが空
         obs = self.sensor.data(self.pose) if self.sensor else None
-        nu,omega = self.agent.decision(obs)
+        nu,omega = self.agent.decision(obs) # 速度と角速度を取得
         # time_interval:１ステップが何秒か指定
         self.pose = self.state_transition(nu,omega,time_interval,self.pose)
 
