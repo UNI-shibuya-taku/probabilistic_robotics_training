@@ -17,7 +17,7 @@ class Robot(IdealRobot):
     # noise_per_meter:1mあたりの小石の数 noise_std:小石を踏んだときにロボットの向きに発生する雑音の標準偏差
     # expected_stuck_time:スタックするまでの時間の期待値（平均タイム） expected_escape_time:スタックから脱出するまでの時間（平均タイム）
     # expected_kidnap_time:誘拐される時間周期
-    def __init__(self, pose, agent = None, sensor = None , color = "black",                noise_per_meter = 5,noise_std = math.pi/60,                bias_rate_stds = (0.1,0.1),                expected_stuck_time = 1e100,expected_escape_time = 1e-100,                expected_kidnap_time = 1e100,kidnap_range_x = (-5.0,5.0),kidnap_range_y = (-5.0,5.0)):
+    def __init__(self, pose, agent = None, sensor = None , color = "black",noise_per_meter = 5,noise_std = math.pi/60, bias_rate_stds = (0.1,0.1), expected_stuck_time = 1e100,expected_escape_time = 1e-100, expected_kidnap_time = 1e100,kidnap_range_x = (-5.0,5.0),kidnap_range_y = (-5.0,5.0)):
 
         super().__init__(pose,agent,sensor,color) # super() IdealRobotのinitを呼び出す
 
@@ -48,15 +48,16 @@ class Robot(IdealRobot):
     # ガウス分布上にセンサ値をばらつかせる
     def noise(self,pose,nu,omega,time_interval):
         # 直進と回転で進む床面の距離
-        self.distance_until_noise -= abs(nu)*time_interval + self.r*abs(omega)*time_interval
+        self.distance_until_noise -= abs(nu) * time_interval + self.r * abs(omega) * time_interval
         if self.distance_until_noise <= 0.0: # distance_until_noiseが0かどうか判定
-            self.distance_until_noise += self.noise_pdf.rvs()
-            pose[2] += self.theta_noise.rvs()
+            self.distance_until_noise += self.noise_pdf.rvs() # 次の小石と距離をセット
+            pose[2] += self.theta_noise.rvs() # ランダムにロボットの角度を変更
 
         return pose
 
+    # スタック:何かに挟まって、しばらく動けなくなる
     def stuck(self,nu,omega,time_interval):
-        if self.is_stuck:
+        if self.is_stuck: # 引っかかってるとき
             self.time_until_escape -= time_interval
             if self.time_until_escape <= 0.0:
                 self.time_until_escape += self.escape_pdf.rvs()
