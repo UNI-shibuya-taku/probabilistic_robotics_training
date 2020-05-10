@@ -55,7 +55,7 @@ class World:
         elems.append(ax.text(-4.4,4.5,time_str,fontsize = 10)) # 経過時間をどこに表示するか設定
         for obj in self.objects: # objectsはIdealRobot
             obj.draw(ax,elems) # class IdealRobotで描く
-            if hasattr(obj,"one_step"): obj.one_step(self.time_interval) # 姿勢の更新
+            if hasattr(obj,"one_step"): obj.one_step(self.time_interval) # 姿勢の更新　IdealRobotのone_step
             # obj.one_stepはIdealRobotのonestep
 
 # In[3]:
@@ -77,9 +77,9 @@ class IdealRobot:
         yn = y + self.r * math.sin(theta)
         elems += ax.plot([x,xn],[y,yn],color = self.color) # ロボットの位置プロット
 
-        # patches.Circle(xy = 原点,radius = 半径,fill = False,color = 色)
-        c = patches.Circle(xy = (x,y),radius = self.r,fill = False,color = self.color) # 円を描く下準備
-        elems.append(ax.add_patch(c)) # 円完成　あとは出力
+        # patches.Circle(xy = 現在地のロボットの座標,radius = 半径,fill = False,color = 色)
+        c = patches.Circle(xy = (x,y),radius = self.r,fill = False,color = self.color) # ロボットを円で表現
+        elems.append(ax.add_patch(c)) # 円（エージェント）完成
 
         # ロボットの軌跡を描く処理
         self.poses.append(self.pose) # ロボットの位置情報をappend
@@ -88,7 +88,7 @@ class IdealRobot:
         if self.sensor: # センサがあれば
             self.sensor.draw(ax,elems,self.poses[-2])
 
-        if self.agent and hasattr(self.agent,"draw"): # circling,straight
+        if self.agent and hasattr(self.agent,"draw"): # mclの準備
             self.agent.draw(ax,elems)
 
     # 移動後の状態を返す
@@ -157,7 +157,7 @@ class Map:
 
 # In[7]:
 class IdealCamera:
-    def __init__(self,env_map,                distance_range = (0.5,6.0),
+    def __init__(self,env_map, distance_range = (0.5,6.0),
                 direction_range = (-math.pi/3,math.pi/3)):
         self.map = env_map
         self.lastdata = []
