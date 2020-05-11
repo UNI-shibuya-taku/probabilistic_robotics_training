@@ -54,7 +54,7 @@ class Mcl:
     def __init__(self,envmap,init_pose,num,motion_noise_stds = {"nn":0.19,"no":0.001,"on":0.13,"oo":0.2}, distance_dev_rate = 0.14,direction_dev = 0.05):
         # distance_dev_rate: ,direction_dev_rate:
 
-        self.particles = [Particle(init_pose, 1.0 / num) for i in range(num)] # 初期重み
+        self.particles = [Particle(init_pose, 1.0 / num) for i in range(num)] # 初期重み設定
 
         self.map = envmap
         self.distance_dev_rate = distance_dev_rate
@@ -66,12 +66,12 @@ class Mcl:
 
         v = motion_noise_stds
         c = np.diag([v["nn"]**2,v["no"]**2,v["on"]**2,v["oo"]**2 ]) # 与えられた要素を二乗して対角行列へ返す
-        self.motion_noise_rate_pdf = multivariate_normal(cov = c)
+        self.motion_noise_rate_pdf = multivariate_normal(cov = c) # この対象行列の分散から分布を生成
 
     def set_ml(self):
-        i = np.argmax([p.weight for p in self.particles])
-        self.ml = self.particles[i]
-        self.pose = self.ml.pose
+        i = np.argmax([p.weight for p in self.particles]) # 最も重い粒子の番号を特定
+        self.ml = self.particles[i] # その粒子を保存
+        self.pose = self.ml.pose # 重い粒子の姿勢を推定姿勢とする
 
     def motion_update(self,nu,omega,time):
         #print(self.motion_noise_rate_pdf.cov)
@@ -110,9 +110,7 @@ class Mcl:
         # 重みに比例してベクトルを長くする
         vxs = [math.cos(p.pose[2]) * p.weight * len(self.particles) for p in self.particles] # ベクトルのx成分
         vys = [math.sin(p.pose[2]) * p.weight * len(self.particles) for p in self.particles]
-        elems.append(ax.quiver(xs, ys, vxs, vys,                     angles = 'xy', scale_units = 'xy', scale = 1.5, color = "blue" , alpha = 0.5)) # 粒子の位置と姿勢を登録
-
-
+        elems.append(ax.quiver(xs, ys, vxs, vys, angles = 'xy', scale_units = 'xy', scale = 1.5, color = "blue" , alpha = 0.5)) # 粒子の位置と姿勢を登録
 
 
 # In[4]:
@@ -140,9 +138,7 @@ class EstimationAgent(Agent):
         s = "({:.2f},{:.2f},{})".format(x,y,int(t * 180 / math.pi) % 360)
         elems.append(ax.text(x,y + 0.1,s,fontsize = 8))
 
-
 # In[5]:
-
 
 """
 def trial():
@@ -164,12 +160,3 @@ def trial():
 trial()
 # リサンプリングで粒子を頑張らせた
 """
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
