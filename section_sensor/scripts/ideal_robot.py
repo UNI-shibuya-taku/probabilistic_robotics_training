@@ -174,12 +174,12 @@ class IdealCamera:
     def data(self,cam_pose):
         observed = []
         for lm in self.map.landmarks:
-            z = self.observation_function(cam_pose,lm.pos) # 関数h
+            z = self.observation_function(cam_pose,lm.pos) # 観測方程式 ロボットの姿勢とランドマークの位置が引数
             if self.visible(z): # もし、センサ範囲にオブジェクトがあれば
                 observed.append((z,lm.id)) # 距離と相対角度を保存
 
         self.lastdata = observed
-        return observed
+        return observed # ランドマークと洗濯したロボットとの距離と相対角度を返す
 
     # 出力方程式 landmarkとrobotとの距離と相対角度を出力
     # カメラとlandmarkの位置が引数 *cameraとロボットは同じ方向を向いているものとする
