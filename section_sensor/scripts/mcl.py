@@ -25,7 +25,7 @@ class Particle:
         # 式(5.12)処理
         noised_nu = nu + ns[0] * math.sqrt(abs(nu) / time) + ns[1] * math.sqrt(abs(omega) / time)
         noised_omega = omega + ns[2] * math.sqrt(abs(nu) / time) + ns[3] * math.sqrt(abs(omega) / time)
-        self.pose = IdealRobot.state_transition(noised_nu,noised_omega,time,self.pose) # 粒子の移動 状態方程式へ
+        self.pose = IdealRobot.state_transition(noised_nu,noised_omega,time,self.pose) # 以上の速度と角速度を使って状態方程式へ
 
     # 観測ステップ
     def observation_update(self,observation,envmap,distance_dev_rate,direction_dev):
@@ -36,17 +36,16 @@ class Particle:
 
             # 粒子の位置と地図からランドマークの距離と方角を算出
             pos_on_map = envmap.landmarks[obs_id].pos
-            particle_suggest_pos = IdealCamera.observation_function(self.pose, pos_on_map)
+            particle_suggest_pos = IdealCamera.observation_function(self.pose, pos_on_map) # 曲座標 正確
 
             # 尤度計算
-            distance_dev = distance_dev_rate * particle_suggest_pos[0] # 距離に比例
-            cov = np.diag(np.array([distance_dev**2 ,direction_dev**2])) # 分散
+            distance_dev = distance_dev_rate * particle_suggest_pos[0] # 距離をばらつかせる h_j(x)
+            cov = np.diag(np.array([distance_dev**2 ,direction_dev**2])) # 距離と相対角度の共分散行列 Q_j(x)
+
+            #
             self.weight *= multivariate_normal(mean = particle_suggest_pos, cov = cov).pdf(obs_pos) # 共分散行列
 
-
-
 # In[3]:
-
 
 # 現在地と粒子の数
 class Mcl:
@@ -78,6 +77,7 @@ class Mcl:
         # class Particl のmotion_updateを全粒子に行う
         for p in self.particles: p.motion_update(nu,omega,time,self.motion_noise_rate_pdf)
 
+    # 尤度計算、姿勢推定、リサンプリング
     def observation_update(self,observation):
         for  p in self.particles: p.observation_update(observation,self.map,self.distance_dev_rate,self.direction_dev)
         self.set_ml()
