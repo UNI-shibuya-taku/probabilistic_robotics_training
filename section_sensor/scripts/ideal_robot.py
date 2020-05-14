@@ -179,7 +179,7 @@ class IdealCamera:
                 observed.append((z,lm.id)) # 距離と相対角度を保存
 
         self.lastdata = observed
-        return observed # ランドマークと洗濯したロボットとの距離と相対角度を返す
+        return observed # ランドマークをロボットが確認できたら、observedにはセンサの線が入る
 
     # 出力方程式 landmarkとrobotとの距離と相対角度を出力
     # カメラとlandmarkの位置が引数 *cameraとロボットは同じ方向を向いているものとする
