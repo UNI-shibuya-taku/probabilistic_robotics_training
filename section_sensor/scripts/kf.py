@@ -16,7 +16,7 @@ from matplotlib.patches import Ellipse
 
 def sigma_ellipse(p, cov, n):
     eig_vals,eig_vec = np.linalg.eig(cov) # 共分散行列covの固有値算出
-    ang = math.atan2(eig_vec[:,0][1], eig_vec[:,0][0]) / math.pi * 180 # 楕円の傾き算出
+    ang = math.atan2(eig_vec[:,0][1], eig_vec[:,0][0]) / math.pi * 180 # 楕円の傾き算出１列目の値を用いる
     return Ellipse(p, width = 2 * n * math.sqrt(eig_vals[0]), height = 2 * n * math.sqrt(eig_vals[1]),
                    angle = ang, fill = False, color = "blue", alpha = 0.5)
     # 楕円のオブジェクトを作成して返すpython
@@ -67,7 +67,7 @@ class KalmanFilter:
         self.distance_dev_rate = distance_dev_rate
         self.direction_dev = direction_dev
         
-
+    # 観測モデル b_t^ -> b_t　楕円の広がりを抑える
     def observation_update(self, observation):
         for d in observation:
             z = d[0]
@@ -83,6 +83,8 @@ class KalmanFilter:
             self.belief.cov = (np.eye(3) - K.dot(H)).dot(self.belief.cov)
             self.pose = self.belief.mean
     
+    # b_t-1 -> b_t^
+    #　どうやって楕円を動かすか 状態遷移モデル -> 楕円が広がる
     def motion_update(self, nu, omega, time):
         if abs(omega) < 1e-5: omega = 1e-5
 
@@ -94,17 +96,18 @@ class KalmanFilter:
         self.belief.mean = IdealRobot.state_transition(nu, omega, time, self.belief.mean)
         self.pose = self.belief.mean
         
+        
     def draw(self, ax , elems):
         # xy平面上の誤差の3シグマ範囲
         e = sigma_ellipse(self.belief.mean[0:2], self.belief.cov[0:2, 0:2], 3) # 2*2 の部分を抜き出してsigma_ellipse
-        elems.append(ax.add_patch(e))
+        elems.append(ax.add_patch(e)) # 楕円投入
         
         # θ方向の誤差の3シグマ範囲
         x, y, c = self.belief.mean
         sigma3 = math.sqrt(self.belief.cov[2,2]) * 3
         xs = [x + math.cos(c - sigma3), x, x + math.cos(c + sigma3)]
         ys = [y + math.sin(c - sigma3), y, y + math.sin(c + sigma3)]
-        elems += ax.plot(xs, ys, color = "blue", alpha = 0.5)
+        elems += ax.plot(xs, ys, color = "blue", alpha = 0.5) # μ_θ　-3*σ ~ μ_θ　+3*σの範囲を描画
 
 
 # In[5]:
