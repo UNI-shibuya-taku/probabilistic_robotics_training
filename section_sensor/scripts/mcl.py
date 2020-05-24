@@ -88,6 +88,8 @@ class Mcl:
         ws = np.cumsum([e.weight for e in self.particles]) # 最後の要素が重みの合計 足し合わせていく
         if ws[-1] < 1e-100: ws = [e + 1e-100 for e in ws] # 重みの合計が0にならないように
 
+        # ws[-1] -> 配列wsの一番最後の値を指す
+        # すなわち、重みの合計
         step = ws[-1] / len(self.particles)
         r = np.random.uniform(0.0,step)
         cur_pos = 0
