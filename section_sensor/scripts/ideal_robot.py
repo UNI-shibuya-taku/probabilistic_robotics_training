@@ -43,6 +43,7 @@ class World:
         else:
             # FuncAnimation内をupdate
             # self.onestepは引数が３つなので、二つ目以降はfargsで示す
+            # frams: 何回アニメーションをcall back関数の通りに動かすか指定する
             self.ani = anm.FuncAnimation(fig,self.one_step,fargs = (elems,ax),
                                          frames = int(self.time_span / self.time_interval)+1,
                                          interval = int(self.time_interval * 1000),repeat = False)
@@ -162,8 +163,8 @@ class IdealCamera:
         self.map = env_map
         self.lastdata = []
 
-        self.distance_range = distance_range
-        self.direction_range = direction_range
+        self.distance_range = distance_range # 0.5~6.0の範囲の距離にいるかどうかの指標
+        self.direction_range = direction_range # -math.pi/3,math.pi/3の範囲の角度にいるかどうかの指標
 
     def visible(self,polarpos):
         if polarpos is None:
@@ -171,6 +172,8 @@ class IdealCamera:
 
         return self.distance_range[0] <= polarpos[0] <= self.distance_range[1] and self.direction_range[0] <= polarpos[1] <= self.direction_range[1]
 
+    # 観測方程式を使って、ランドマークとの距離と相対角度を特定
+    # 観測範囲にいなければセンサの線(ピンク)はappendしない
     def data(self,cam_pose):
         observed = []
         for lm in self.map.landmarks:
@@ -193,6 +196,8 @@ class IdealCamera:
 
         return np.array([np.hypot(*diff),phi]).T # 距離と相対角度を返す
 
+    # センサの線（ピンク）を描画
+    # lastdataには、observed（ランドマークとの距離と相対角度）が入っている
     def draw(self,ax,elems,cam_pose):
         for lm in self.lastdata:
             x,y,theta = cam_pose

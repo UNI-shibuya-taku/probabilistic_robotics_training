@@ -15,17 +15,19 @@ from scipy.stats import expon, norm,uniform # 指数分布の機能を提供す�
 
 class Robot(IdealRobot):
     # noise_per_meter:1mあたりの小石の数 noise_std:小石を踏んだときにロボットの向きに発生する雑音の標準偏差
+    # noise_std: 角度の標準偏差 １０％
     # expected_stuck_time:スタックするまでの時間の期待値（平均タイム） expected_escape_time:スタックから脱出するまでの時間（平均タイム）
     # expected_kidnap_time:誘拐される時間周期
-    def __init__(self, pose, agent = None, sensor = None , color = "black",noise_per_meter = 5,noise_std = math.pi/60, bias_rate_stds = (0.1,0.1), expected_stuck_time = 1e100,expected_escape_time = 1e-100, expected_kidnap_time = 1e100,kidnap_range_x = (-5.0,5.0),kidnap_range_y = (-5.0,5.0)):
+    # λ = noise_per_meter = 5
+    def __init__(self, pose, agent = None, sensor = None , color = "black", noise_per_meter = 5, noise_std = math.pi/60, bias_rate_stds = (0.1,0.1), expected_stuck_time = 1e100, expected_escape_time = 1e-100, expected_kidnap_time = 1e100, kidnap_range_x = (-5.0,5.0), kidnap_range_y = (-5.0,5.0)):
 
         super().__init__(pose,agent,sensor,color) # super() IdealRobotのinitを呼び出す
 
-        self.noise_pdf = expon(scale = 1.0 / (1e-100 + noise_per_meter)) # scale = 1/(λ + 10^-100) 指数分布
+        self.noise_pdf = expon(scale = 1.0 / (1e-100 + noise_per_meter)) # 標準偏差が指数分布のscale = 1/(λ + 10^-100) のガウス分布
         self.distance_until_noise = self.noise_pdf.rvs()
         self.theta_noise = norm(scale = noise_std) # 小石踏んだときの誤差する角度
-        self.bias_rate_nu = norm.rvs(loc = 1.0,scale = bias_rate_stds[0]) # 正規分布
-        self.bias_rate_omega = norm.rvs(loc = 1.0,scale = bias_rate_stds[1])
+        self.bias_rate_nu = norm.rvs(loc = 1.0,scale = bias_rate_stds[0]) # 正規分布 速度を+-10%で係数を決定
+        self.bias_rate_omega = norm.rvs(loc = 1.0,scale = bias_rate_stds[1]) # 0.9 ~ 1.0
         # loc:平均 scale:標準偏差 size:サンプル数
 
         self.stuck_pdf = expon(scale = expected_stuck_time) # 確立密度関数作成
