@@ -55,8 +55,8 @@ class World:
         time_str = "t= %.2f[s]" % (self.time_interval * i) # 経過時間
         elems.append(ax.text(-4.4,4.5,time_str,fontsize = 10)) # 経過時間をどこに表示するか設定
         for obj in self.objects: # objectsはIdealRobot
-            obj.draw(ax,elems) # class IdealRobotで描く
-            if hasattr(obj,"one_step"): obj.one_step(self.time_interval) # 姿勢の更新　IdealRobotのone_step
+            obj.draw(ax,elems) 
+            if hasattr(obj,"one_step"): obj.one_step(self.time_interval) # 姿勢の更新 各クラスに存在するone_stepを実行
             # obj.one_stepはIdealRobotのonestep
 
 # In[3]:
@@ -210,23 +210,23 @@ class IdealCamera:
 # In[8]:
 
 
-#if __name__ == '__main__':
-world = World(30.0,0.1) # elemsはclass Worldで用意される
+if __name__ == '__main__':
+    world = World(30.0,0.1) # elemsはclass Worldで用意される
 
-m = Map()
-m.append_landmark(Landmark(2,-2))
-m.append_landmark(Landmark(-1,-3))
-m.append_landmark(Landmark(3,3))
-world.append(m)
+    m = Map()
+    m.append_landmark(Landmark(2,-2))
+    m.append_landmark(Landmark(-1,-3))
+    m.append_landmark(Landmark(3,3))
+    world.append(m)
 
-straight = Agent(0.2,0.0)
-circling = Agent(0.2,10.0 / 180 * math.pi)
-robot1 = IdealRobot(np.array([2,3,math.pi/6]).T, sensor = IdealCamera(m),agent = straight) #(x,y,θ) = (2,3,π/6) .T -> 転置
-robot2 = IdealRobot(np.array([-2,-1,math.pi/5*6]).T, sensor = IdealCamera(m),agent = circling,color = "red")
+    straight = Agent(0.2,0.0)
+    circling = Agent(0.2,10.0 / 180 * math.pi)
+    robot1 = IdealRobot(np.array([2,3,math.pi/6]).T, sensor = IdealCamera(m),agent = straight) #(x,y,θ) = (2,3,π/6) .T -> 転置
+    robot2 = IdealRobot(np.array([-2,-1,math.pi/5*6]).T, sensor = IdealCamera(m),agent = circling,color = "red")
     #robot3 = IdealRobot(np.array([0,0,0]).T,color = "blue")
 
-world.append(robot1)
-world.append(robot2)
+    world.append(robot1)
+    world.append(robot2)
     #world.append(robot3)
 
-world.draw()
+    world.draw()

@@ -101,7 +101,7 @@ class Camera(IdealCamera):
                  direction_range = (-math.pi/3,math.pi/3),
                  distance_noise_rate = 0.1,direction_noise = math.pi / 90,
                  distance_bias_rate_stddev = 0.1,direction_bias_stddev = math.pi / 90,
-                 phantom_prob = 0.8,phantom_range_x = (-5.0,5.0),phantom_range_y = (-5.0,5.0),
+                 phantom_prob = 0.0,phantom_range_x = (-5.0,5.0),phantom_range_y = (-5.0,5.0),
                  oversight_prob = 0.1,
                  occlusion_prob = 0.0):
                     # ←距離と角度に関するノイズの標準偏差
@@ -175,7 +175,6 @@ class Camera(IdealCamera):
 # In[5]:
 
 
-import copy
 if __name__ == '__main__':
     world = World(30,0.1)
     m = Map()
