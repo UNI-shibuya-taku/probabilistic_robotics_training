@@ -22,12 +22,12 @@ def sigma_ellipse(p, cov, n):
     # 楕円のオブジェクトを作成して返すpython
     
 def matM(nu, omega, time, stds):
-    print("M")
+    #print("M")
     return np.diag([stds["nn"] ** 2 * abs(nu) / time + stds["no"] ** 2 * abs(omega) / time,
                     stds["on"] ** 2 * abs(nu) / time + stds["oo"] ** 2 * abs(omega) / time])
     
 def matA(nu, omega, time, theta):
-    print("A")
+    #print("A")
     st, ct = math.sin(theta), math.cos(theta)
     stw, ctw = math.sin(theta + omega * time), math.cos(theta + omega * time)
     return np.array([[(stw - st) / omega  , -nu / (omega **2) * (stw - st) + nu / omega * time * ctw],
@@ -35,7 +35,7 @@ def matA(nu, omega, time, theta):
                       [0                  ,                   time]])
     
 def matF(nu, omega, time, theta):   
-    print("F")
+    #print("F")
     F = np.diag([1.0, 1.0, 1.0])
     F[0,2] = nu / omega * (math.cos(theta + omega * time) - math.cos(theta))
     F[1,2] = nu / omega * (math.sin(theta + omega * time) - math.sin(theta))
